@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8"/>
+    <title>华为用户管理</title>
+    <script src="/js/jquery-1.7.2.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <!-- 弹窗组件-->
+
+    <script src="/js/zDrag.js"></script>
+    <script src="/js/zDialog.js"></script>
+    <script src="/js/jquery.tips.js"></script>
+
+    <link rel="stylesheet" href="/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="/css/bootstrap-responsive.min.css"/>
+    <link rel="stylesheet" href="/css/bootstrap-theme.css"/>
+    <style type="text/css">
+        h3{
+            border-bottom: 1px solid silver;
+        }
+        .title{
+            padding-left:10px;
+            padding-right:10px;
+            overflow: auto;
+        }
+        .content{
+            padding-left:10px;
+            padding-right:10px;
+            margin-top: 5px;
+        }
+        #filter{
+            display:none;
+            position: absolute;
+            top:0%;
+            left:0%;
+            width:100%;
+            height: 100%;
+            background: #b1bac1;
+            z-index: 1001;
+            -moz-opacity: 0.5;
+            opacity: .50;
+            filter: alpha(opacity=50);
+        }
+        #showUpdate{
+            display:none;
+            position: absolute;
+            top:18%;
+            left:30%;
+            background-color: white;
+            z-index: 1002;
+            overflow: auto;
+        }
+        #showAdd{
+            display:none;
+            position: absolute;
+            top:18%;
+            left:30%;
+            background-color: white;
+            z-index: 1002;
+            overflow: auto;
+        }
+    </style>
+    <script type="text/javascript">
+        $(function(){
+            var choose=$("#content").html();
+            $("option").each(function(){
+                if($(this).html()==choose){
+                    $(this).prop("selected","selected");
+                    return;
+                }
+            });
+            $("#goPage").click(function(){
+                var pageno = $("#toGoPage").val();
+                if(pageno == ""){
+                    window.location.href = "/userController/findAll?pageno=1";
+                }else if(0>=pageno){
+                    return;
+                }else if($("#totalPage").html()>=pageno){
+                    window.location.href = "/userController/findAll?pageno="+pageno;
+                }else if(0>=$("#totalPage").html()){
+                    return;
+                }else{
+                    return;
+                }
+            });
+            $("#headPage").click(function(){
+                window.location.href = "/userController/findAll?pageno=1";
+            });
+            $("#next").click(function(){
+
+                var pageno =Number($("#nowpage").html())+1;
+                if($("#totalPage").html()>=pageno){
+                    window.location.href = "/userController/findAll?pageno="+pageno;
+                }else{
+                    return;
+                }
+            });
+            $("#up").click(function(){
+
+                var pageno =Number($("#nowpage").html())-1;
+                if(pageno>=1){
+                    window.location.href = "/userController/findAll?pageno="+pageno;
+                }else{
+                    return;
+                }
+            });
+            $("#pageSize").change(function(){
+                var pageSize = this.value;
+                window.location.href = "/userController/findAll?pageSize="+pageSize;
+            });
+            $(".update").each(function(){
+                $(this).click(function(){
+                    $("#userId").val($(this).parent().parent().find("td").eq(0).html());
+                    $("#username").val($(this).parent().parent().find("td").eq(2).html());
+                    if($(this).parent().parent().find("td").eq("3").html()=="男"){
+                        $("#sex1").prop("checked","checked");
+                    }else if($(this).parent().parent().find("td").eq("3").html()=="女"){
+                        $("#sex2").prop("checked","checked");
+                    }else if($(this).parent().parent().find("td").eq("3").html()==""){
+                        $("#sex1").attr("checked",false);
+                        $("#sex2").prop("checked",false);
+                    }
+                    $("#age").val($(this).parent().parent().find("td").eq(4).html());
+                    $("#phone").val($(this).parent().parent().find("td").eq(5).html());
+                    $("#filter").css({"display":"block"});
+                    $("#showUpdate").css({"display":"block"});
+                });
+
+            });
+
+            //删除
+            $(".del").each(function(){
+                $(this).click(function(){
+                    if(confirm("是否删除该数据？")){
+                        var userId=$(this).parent().parent().find("td").eq(0).html();
+                        $.ajax({
+                            type : "POST",
+                            url : "/userController/delUserById",
+                            data :{"userId":userId},
+                            success : function(data) {
+                                if(data == "true"){
+                                    window.location.href="/userController/findAll";
+                                }
+                                window.location.href="/userController/findAll";
+                            }
+                        });
+                    }
+
+                });
+
+            });
+
+            $("#add").click(function(){
+                $("#filter").css({"display":"block"});
+                $("#showAdd").css({"display":"block"});
+            });
+
+            //添加
+            $("#addUser").click(function(){
+                var userName=$("#username_add").val();
+                if(userName==""){
+                    $("#username_add").tips({
+                        side : 3,
+                        msg : '姓名不能为空',
+                        bg : '#AE81FF',
+                        time : 2
+                    });
+                    $("#username").focus();
+                    return;
+
+                }
+                var sex;
+                if($("#sex_add1").prop("checked")==true){
+                    sex="0";
+                }else if($("#sex_add2").prop("checked")==true){
+                    sex = "1";
+                }else if($("#sex_add1").prop("checked")==false){
+                    if($("#sex_add2").prop("checked")==false){
+                        sex="";
+                    }
+                }
+                var age=$("#age_add").val();
+                var phone=$("#phone_add").val();
+                if(phone.length>11){
+                    $("#phone_add").tips({
+                        side : 3,
+                        msg : '请填写正确的手机号',
+                        bg : '#AE81FF',
+                        time : 2
+                    });
+                    $("#phone_add").focus();
+                    return;
+                }
+                $.ajax({
+                    type: "POST",
+                    url: "/userController/addUser",
+                    data: {"userName": userName, "sex": sex, "age": age, "phone": phone},
+                    success: function (data) {
+                        if (data == "true") {
+                            window.location.href = "/userController/findAll";
+                        }
+                        window.location.href = "/userController/findAll";
+                    }
+                });
+            });
+            //修改
+            $("#save").click(function(){
+                var pageno = $("#nowpage").html();
+                var userId=$("#userId").val();
+                var userName=$("#username").val();
+                if(userName==""){
+                    $("#username").tips({
+                        side : 3,
+                        msg : '姓名不能为空',
+                        bg : '#AE81FF',
+                        time : 2
+                    });
+                    $("#username").focus();
+                    return;
+
+                }
+                var sex;
+                if($("#sex1").prop("checked")==true){
+                    sex="0";
+                }else if($("#sex2").prop("checked")==true){
+                    sex = "1";
+                }else if($("#sex1").prop("checked")==false){
+                    if($("#sex2").prop("checked")==false){
+                        sex="";
+                    }
+                }
+                var age=$("#age").val();
+                var phone=$("#phone").val();
+                if(phone.length>11){
+                    $("#phone").tips({
+                        side : 3,
+                        msg : '请填写正确的手机号',
+                        bg : '#AE81FF',
+                        time : 2
+                    });
+                    $("#phone").focus();
+                    return;
+                }
+                $.ajax({
+                    type : "POST",
+                    url : "/userController/updateUserById",
+                    data :{"userId":userId,"userName":userName,"sex":sex,"age":age,"phone":phone},
+                    success : function(data) {
+                        if(data == "true"){
+                            window.location.href="/userController/findAll?pageno="+pageno;
+                         }
+                        window.location.href="/userController/findAll?pageno="+pageno;
+                    }
+                });
+            });
+        });
+        function remove(){
+            $("#filter").css({"display":"none"});
+            $("#showUpdate").css({"display":"none"});
+            $("#showAdd").css({"display":"none"});
+        }
+    </script>
+</head>
+<body>
+    <div class="head">
+        <h3 align="center">华为用户管理</h3>
+    </div>
+    <div class="title">
+        <input type="button" value="新增" id="add" style="margin-top: 10px;width: 80px;" class="btn"/>
+    </div>
+    <div class="content">
+        <table class="table table-bordered">
+            <tr>
+                <td>序号</td><td>姓名</td><td>性别</td><td>年龄</td><td>手机号</td><td>操作</td>
+            </tr>
+            <tr th:if="${users!=null}" th:each="user:${users}">
+                <td th:text="${user.userId}" style="display: none"></td>
+                <td th:text="${user.number}"></td>
+                <td th:text="${user.userName}"></td>
+                <td th:if="${user.sex=='0'}" th:text="男"></td>
+                <td th:if="${user.sex=='1'}" th:text="女"></td>
+                <td th:if="${user.sex==null || user.sex==''}" th:text="${user.sex}"></td>
+                <td th:text="${user.age}"></td>
+                <td th:text="${user.phone}"></td>
+                <td>
+                    <input type="button" value="查看运动状况" class="btn"/>
+                    <input type="button" value="修改" class="btn update"/>
+                    <input type="button" value="删除" class="btn del"/>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="pagination">
+
+        <ul>
+            <!--<li><a href="#">&laquo;</a></li>-->
+            <li><a>共<span style="color:red;" th:text="${count}">1</span>条</a></li>
+            <li><input type="number" id="toGoPage" style="width:50px;text-align:center;float:left" placeholder="页码"/></li>
+            <li style="cursor:pointer;background-color: #3e8f3e"><a onclick="send()" id="goPage">跳转</a></li>
+            <li style="cursor:pointer;"><a id="headPage">首页</a></li>
+            <li style="cursor:pointer;"><a id="up">上页</a></li>
+            <li><a><span style="color:#808080;" th:text="${currentPage}" id="nowpage">2</span></a></li>
+            <li style="cursor:pointer;"><a id="next">下页</a></li>
+            <li><a>第<span th:text="${currentPage}">2</span>页</a></li>
+            <li><a>共<span th:text="${totalPage}" id="totalPage">1</span>页</a></li>
+            <li>
+                <select title='显示条数' style="width:55px;float:left;" id="pageSize">
+                    <option th:text="5">位</option>
+                    <option th:text="10">10</option>
+                    <option th:text="15">15</option>
+                    <option th:text="20">20</option>
+                </select><span th:text="${pageSize}" id="content" style="display: none"></span>
+            </li>
+        </ul>
+
+    </div>
+    <div id="filter">
+
+    </div>
+    <div id="showUpdate" style="border:1px solid silver;width:400px;border-radius: 5px;">
+        <h4 align="center" style="border-bottom:1px solid silver">修改</h4>
+        <div align="center" style="margin-bottom: 20px;background-color: lightgray;line-height: 25px;"><span style="font-weight: bold">注意：</span>红色*为必填项，不填写不可操作</div>
+        <form id="doForm" action="/examinationController/import"
+              method="post" enctype="multipart/form-data">
+                <table style="width:318px;margin:0 auto;">
+                    <tr style="display: none;">
+                        <td><input type="text" name="userId" id="userId"/></td>
+                    </tr>
+                    <tr>
+                        <td align="center"><span style="color: red;">*</span>姓名:</td><td><input type="text" name="username" id="username"/></td>
+                    </tr>
+                    <tr>
+                        <td align="center">性别:</td><td><input type="radio" id="sex1" name="sex"/>男<input type="radio" id="sex2" name="sex" style="margin-left: 20px;"/>女</td>
+                    </tr>
+                    <tr>
+                        <td align="center">年龄:</td><td><input type="text" name="age" id="age"/></td>
+                    </tr>
+                    <tr>
+                        <td align="center">手机号:</td><td><input type="text" name="phone" id="phone"/></td>
+                    </tr>
+                    <tr>
+                        <td><input type="button" value="保存" style="width: 80px;" class="btn" id="save"/></td>
+                        <td align="right"><input type="button" value="取消" style="width: 80px;" class="btn" onclick="remove()"/></td>
+                    </tr>
+                </table>
+        </form>
+    </div>
+    <div id="showAdd" style="border:1px solid silver;width:400px;border-radius: 5px;">
+        <h4 align="center" style="border-bottom:1px solid silver">新增用户</h4>
+        <div align="center" style="margin-bottom: 20px;background-color: lightgray;line-height: 25px;"><span style="font-weight: bold">注意：</span>红色*为必填项，不填写不可操作</div>
+        <form id="doForm1" action="/examinationController/import"
+              method="post" enctype="multipart/form-data">
+            <table style="width:318px;margin:0 auto;">
+                <tr>
+                    <td align="center"><span style="color: red;">*</span>姓名:</td><td><input type="text" name="username" id="username_add"/></td>
+                </tr>
+                <tr>
+                    <td align="center">性别:</td><td><input type="radio" id="sex_add1" name="sex"/>男<input type="radio" id="sex_add2" name="sex" style="margin-left: 20px;"/>女</td>
+                </tr>
+                <tr>
+                    <td align="center">年龄:</td><td><input type="text" name="age" id="age_add"/></td>
+                </tr>
+                <tr>
+                    <td align="center">手机号:</td><td><input type="text" name="phone" id="phone_add"/></td>
+                </tr>
+                <tr>
+                    <td><input type="button" value="提交" style="width: 80px;" class="btn" id="addUser"/></td>
+                    <td align="right"><input type="button" value="取消" style="width: 80px;" class="btn" onclick="remove()"/></td>
+                </tr>
+            </table>
+        </form>
+    </div>
+</body>
+</html>
