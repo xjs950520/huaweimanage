@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8"/>
+    <title>运动状况</title>
+    <script src="/js/jquery-1.7.2.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <!-- 弹窗组件-->
+
+    <script src="/js/zDrag.js"></script>
+    <script src="/js/zDialog.js"></script>
+    <script src="/js/jquery.tips.js"></script>
+
+    <script src="/js/jquery-ui.js"></script>
+    <script src="/js/bootbox.min.js"></script>
+    <link rel="stylesheet" href="/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="/css/bootstrap-responsive.min.css"/>
+    <link rel="stylesheet" href="/css/bootstrap-theme.css"/>
+
+    <link rel="stylesheet" href="/css/jquery-ui.css"/>
+    <link rel="stylesheet" href="/css/jquery-ui.structure.css"/>
+    <link rel="stylesheet" href="/css/jquery-ui.theme.css"/>
+
+
+    <style type="text/css">
+        h3{
+            border-bottom: 1px solid silver;
+        }
+        .title{
+            padding-left:10px;
+            padding-right:10px;
+            overflow: auto;
+        }
+        .content{
+            padding-left:10px;
+            padding-right:10px;
+            margin-top: 5px;
+        }
+        #showAdd{
+            display:none;
+            position: absolute;
+            top:18%;
+            left:30%;
+            background-color: white;
+            z-index: 1002;
+            overflow: auto;
+        }
+        #filter{
+            display:none;
+            position: absolute;
+            top:0%;
+            left:0%;
+            width:100%;
+            height: 100%;
+            background: #b1bac1;
+            z-index: 1001;
+            -moz-opacity: 0.5;
+            opacity: .50;
+            filter: alpha(opacity=50);
+        }
+    </style>
+    <script type="text/javascript">
+        $(document).ready(function() {
+
+            var choose=$("#content").html();
+            $("option").each(function(){
+                if($(this).html()==choose){
+                    $(this).prop("selected","selected");
+                    return;
+                }
+            });
+            $("#goPage").click(function(){
+                var pageno = $("#toGoPage").val();
+                if(pageno == ""){
+                    window.location.href = "/sportController/findAll?pageno=1";
+                }else if(0>=pageno){
+                    return;
+                }else if($("#totalPage").html()>=pageno){
+                    window.location.href = "/sportController/findAll?pageno="+pageno;
+                }else if(0>=$("#totalPage").html()){
+                    return;
+                }else{
+                    return;
+                }
+            });
+            $("#headPage").click(function(){
+                window.location.href = "/sportController/findAll?pageno=1";
+            });
+            $("#next").click(function(){
+
+                var pageno =Number($("#nowpage").html())+1;
+                if($("#totalPage").html()>=pageno){
+                    window.location.href = "/sportController/findAll?pageno="+pageno;
+                }else{
+                    return;
+                }
+            });
+            $("#up").click(function(){
+
+                var pageno =Number($("#nowpage").html())-1;
+                if(pageno>=1){
+                    window.location.href = "/sportController/findAll?pageno="+pageno;
+                }else{
+                    return;
+                }
+            });
+            $("#pageSize").change(function(){
+                var pageSize = this.value;
+                window.location.href = "/sportController/findAll?pageSize="+pageSize;
+            });
+
+            $("#add").click(function(){
+                $("#filter").css({"display":"block"});
+                $("#showAdd").css({"display":"block"});
+            });
+            $('#selectDate').datepicker({
+                showOn:"button",
+                buttonImage:"/img/datePicker.gif",
+                buttonImageOnly:true,
+                dateFormat:'yy.mm.dd'
+            });
+            var i=0;
+            $("#choose").click(function(){
+                var remark=0;
+                var str = $("#select").val();
+                var divs=$("#sport_sort").html();
+                str.forEach(function(element){
+                    if(divs.indexOf(element)==-1){
+                        remark++;
+                        i++;
+                        var node = document.createElement("div");
+                        var textnode = document.createTextNode(i+":"+element);
+                        node.appendChild(textnode);
+                        document.getElementById("sport_sort").appendChild(node);
+                    }
+                });
+                if(remark==0){
+                    alert("你已经选过");
+                }
+            });
+            $("option").each(function(){
+                $(this).hover(function(){
+                  $(this).css({"background-color":"#b1bac1"});
+                },function(){
+                    $(this).css({"background-color":"white"});
+                });
+            });
+            $("#addSportPlan").click(function(){
+                var date = new Date();
+                var hour = date.getHours();//获得当前时
+                var minute = date.getMinutes();//获得当前分钟
+                var clock="";
+
+                if(10>hour){
+
+                    clock += "0";
+                }
+                clock += hour + ":";
+                if(10>minute){
+                    clock += "0";
+                }
+                clock += minute;
+                var arr=[];
+                var divs = $("#sport_sort").get(0).childNodes;
+                var time = $("#selectDate").val()+" "+clock;
+                if($("#selectDate").val()==""){
+                    $("#selectDate").tips({
+                        side : 3,
+                        msg : '请选择日期',
+                        bg : '#AE81FF',
+                        time : 2
+                    });
+                    return;
+                }
+                if(divs.length==0){
+                    $("#select").tips({
+                        side : 3,
+                        msg : '请选择运动项目',
+                        bg : '#AE81FF',
+                        time : 2
+                    });
+                    return;
+                }
+                arr.push(time);
+                divs.forEach(function(element){
+                    arr.push($(element).html().substring(2));
+                });
+                $.ajax({
+                    type : "POST",
+                    url : "/sportController/addSportCondition",
+                    contentType : "application/json" ,
+                    data : JSON.stringify(arr),
+                    success : function(data) {
+                        if(data.indexOf("true")!=-1){
+                            alert("复制该条网址，发送给你的用户，让他进行锻炼哦:              " +
+                                "                "+data.substring(4));
+                            window.location.href="/sportController/findAll";
+                        }else{
+                            window.location.href="/sportController/findAll";
+                        }
+                    },
+                    error:function(data){
+                        alert("请稍后再试！");
+                    }
+                });
+            });
+
+            //删除
+            $(".del").each(function(){
+                $(this).click(function(){
+                    if(confirm("是否删除该数据？")){
+                        var id=$(this).parent().parent().find("td").eq(0).html();
+                        var date=$(this).parent().parent().find("td").eq(1).html();
+                        $.ajax({
+                            type : "POST",
+                            url : "/sportController/delSportConditionById",
+                            data :{"id":id,"date":date},
+                            success : function(data) {
+                                if(data == "true"){
+                                    window.location.href="/sportController/findAll";
+                                }
+                                window.location.href="/sportController/findAll";
+                            }
+                        });
+                    }
+
+                });
+
+            });
+            $(".lookFor").each(function(){
+                $(this).click(function(){
+                    var date=$(this).parent().parent().find("td").eq(1).html();
+                    window.location.href="/sportPlanController/getSportPlans?date="+date;
+                });
+
+            });
+        });
+        function remove(){
+            window.location.href="/sportController/findAll";
+        }
+    </script>
+</head>
+<body>
+    <div class="head">
+        <h3 align="center">运动状况</h3>
+    </div>
+    <div class="title">
+        <input type="button" value="新增" id="add" style="margin-top: 10px;width: 80px;" class="btn"/>
+    </div>
+    <div class="content">
+        <table class="table table-bordered">
+            <tr>
+                <td>时间</td><td>URL</td><td>项目数量</td><td>完成度</td><td>操作</td>
+            </tr>
+            <tr th:if="${sportConditions!=null}" th:each="sportCondition:${sportConditions}">
+                <td th:text="${sportCondition.Id}" style="display: none"></td>
+                <td th:text="${sportCondition.addDate}"></td>
+                <td th:text="${sportCondition.url}"></td>
+                <td th:text="${sportCondition.num}"></td>
+                <td th:text="${sportCondition.finish_status}"></td>
+                <td>
+                    <input type="button" value="查看完成状况" class="btn lookFor"/>
+                    <input type="button" value="删除" class="btn del"/>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="pagination">
+
+        <ul>
+            <!--<li><a href="#">&laquo;</a></li>-->
+            <li><a>共<span style="color:red;" th:text="${count}">1</span>条</a></li>
+            <li><input type="number" id="toGoPage" style="width:50px;text-align:center;float:left" placeholder="页码"/></li>
+            <li style="cursor:pointer;background-color: #3e8f3e"><a onclick="send()" id="goPage">跳转</a></li>
+            <li style="cursor:pointer;"><a id="headPage">首页</a></li>
+            <li style="cursor:pointer;"><a id="up">上页</a></li>
+            <li><a><span style="color:#808080;" th:text="${currentPage}" id="nowpage">2</span></a></li>
+            <li style="cursor:pointer;"><a id="next">下页</a></li>
+            <li><a>第<span th:text="${currentPage}">2</span>页</a></li>
+            <li><a>共<span th:text="${totalPage}" id="totalPage">1</span>页</a></li>
+            <li>
+                <select title='显示条数' style="width:55px;float:left;" id="pageSize">
+                    <option th:text="5">位</option>
+                    <option th:text="10">10</option>
+                    <option th:text="15">15</option>
+                    <option th:text="20">20</option>
+                </select><span th:text="${pageSize}" id="content" style="display: none"></span>
+            </li>
+        </ul>
+
+    </div>
+    <div id="filter">
+
+    </div>
+    <div id="showAdd" style="border:1px solid silver;width:450px;border-radius: 5px;overflow: auto;height: 350px;">
+        <h4 align="center" style="border-bottom:1px solid silver">新增运动计划</h4>
+        <!--<div align="center" style="margin-bottom: 20px;background-color: lightgray;line-height: 25px;"><span style="font-weight: bold">注意：</span>红色*为必填项，不填写不可操作</div>-->
+        <form id="doForm1" action="/examinationController/import"
+              method="post" enctype="multipart/form-data">
+            <table style="width:350px;margin:0 auto;">
+                <tr>
+                    <td align="center">时间:</td><td><input type="text" id="selectDate" readonly="readonly" style="margin-right:5px;"/></td>
+                </tr>
+                <tr>
+                    <td align="center">运动项目:</td>
+                    <td>
+                        <select  multiple="true" style="display: inline-block;" id="select">
+                            <option th:each="sportSort:${sportSorts}"  th:text="${sportSort.sportName}" style="text-align: center;"></option>
+                        </select>
+                        <input type="button" value="确定" class="btn" id="choose"/>
+                    </td>
+                </tr>
+                <!--<tr>
+                    <td><input type="button" value="提交" style="width: 80px;" class="btn" id="addUser"/></td>
+                    <td align="right"><input type="button" value="取消" style="width: 80px;" class="btn" onclick="remove()"/></td>
+                </tr>-->
+            </table>
+
+        </form>
+        <div id="sport_sort" style="text-align: center;width: 250px;"></div>
+        <div style="margin-bottom: 20px;margin-top: 40px;">
+            <span style="display: inline-block;width: 45%;text-align: center;"><input type="button" value="添加" style="width: 80px;" class="btn" id="addSportPlan"/></span>
+            <span style="display: inline-block;width: 45%;text-align: center;"><input type="button" value="取消" style="width: 80px;" class="btn" onclick="remove()"/></span>
+        </div>
+    </div>
+
+</body>
+</html>

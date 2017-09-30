@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8"/>
+    <title>运动项目</title>
+    <script src="/js/jquery-1.7.2.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <!-- 弹窗组件-->
+
+    <script src="/js/zDrag.js"></script>
+    <script src="/js/zDialog.js"></script>
+    <script src="/js/jquery.tips.js"></script>
+
+    <script src="/js/jquery-ui.js"></script>
+    <script src="/js/bootbox.min.js"></script>
+    <!--视频插件video-->
+    <script src="/js/videojs-ie8.min.js"></script>
+    <script src="/js/video.min.js"></script>
+    <link href="/css/video-js.css" rel="stylesheet"/>
+
+    <link rel="stylesheet" href="/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="/css/bootstrap-responsive.min.css"/>
+    <link rel="stylesheet" href="/css/bootstrap-theme.css"/>
+
+    <link rel="stylesheet" href="/css/jquery-ui.css"/>
+    <link rel="stylesheet" href="/css/jquery-ui.structure.css"/>
+    <link rel="stylesheet" href="/css/jquery-ui.theme.css"/>
+    <style type="text/css">
+        ul{
+            list-style: none;
+        }
+        ul li:hover{
+            cursor: pointer;
+        }
+    </style>
+    <script type="text/javascript">
+        $(function(){
+            var myPlayer = videojs('my-video');
+            myPlayer.on("pause", function(){
+                if(myPlayer.currentTime()==myPlayer.duration()){
+                    $("div[role='slider']").css("display","block");
+                };
+                var currentTime = myPlayer.currentTime;//获取播放进度
+
+                /*$.ajax(function(){
+
+                });*/
+            });
+            myPlayer.on("firstplay", function(){
+                $("div[role='slider']").css("display","none");
+                myPlayer.currentTime(20);//设置播放进度
+            });
+            $(".li").each(function(){
+                $(this).click(function(){
+                    var id = $(this).find("span").eq(11).html();
+//                    $("#v").prop("src",content);
+//                    $("#name").html($(this).find("span").eq(2).html());
+                    window.location.href="/sportPlanController/getSportPlans?id="+id;
+                });
+            });
+            /*myPlayer.on("seeked", function(){
+            alert("dfdf");
+            return false;
+
+
+        });
+        myPlayer.on("seeking", function(){
+
+            return false;
+
+
+        });*/
+
+
+            /*$("button[title='Fullscreen']").toggle(
+                function(){
+                    myPlayer.width(window.innerWidth);
+                    myPlayer.height(window.innerHeight);
+                },
+                function () {
+                    myPlayer.width(640);
+                    myPlayer.height(264);
+                }
+            );*/
+        });
+    </script>
+</head>
+<body style="background-color: black;">
+    <!--https://edge.flowplayer.org/bauhaus.mp4 640 240-->
+    <div style="background-color: #2b2b2b;line-height: 50px;color: gainsboro;" id="name" th:text="${sportSortName}"></div>
+    <div class="m" style="width:100%;border:1px solid blue;">
+        <video id="my-video" class="video-js vjs-big-play-centered" controls="auto" width="800" height="424" style="border:1px solid red;background-color:white;margin-left:auto;margin-right: auto;"
+               poster="MY_VIDEO_POSTER.jpg" data-setup="{}">
+            <source th:src="${url}" type="video/mp4" id="v"/>
+            <source src="http://vjs.zencdn.net/v/oceans.webm" type="video/webm"/>
+            <source src="http://vjs.zencdn.net/v/oceans.ogv" type="video/ogg"/>
+            <!--<p class="vjs-no-js">
+              To view this video please enable JavaScript, and consider upgrading to a web browser that
+              <a href="http://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
+            </p>-->
+        </video>
+        <!--<script type="text/javascript">
+            var myPlayer = videojs('my-video');
+            myPlayer.ready(function(){
+                var myPlayer = this;
+                myPlayer.play();
+                myPlayer.pause();
+                myPlayer.enterFullScreen();
+            });
+        </script>-->
+    </div>
+    <div>
+        <ul style="color: gainsboro;">
+            <li th:each="sportPlan:${sportPlans}" class="li">
+                <span th:text="${sportPlan.number}"></span>
+                <span>、</span>
+                <span th:text="${sportPlan.sportSortName}"></span>
+                <span th:text="${sportPlan.url}"></span>
+                <span><img src="/img/wrong.png" class="img" style="width: 25;height: 23"/></span>
+                <span><img src="/img/right_hui.png" style="width: 25;height: 23"/></span>
+                <span th:text="${sportPlan.watchTime}"></span><!--上一次的观看进度-->
+                <span th:text="${sportPlan.finishStatus}"></span>
+                <span th:text="${sportPlan.userId}"></span>
+                <span th:text="${sportPlan.sportSortId}"></span>
+                <span th:text="${sportPlan.planDate}"></span>
+                <span th:text="${sportPlan.id}"></span>
+            </li>
+        </ul>
+    </div>
+</body>
+</html>
