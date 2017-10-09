@@ -24,7 +24,8 @@ public class SportPlanDaoImpl implements SportPlanDao {
 
     @Override
     public int updateSportPlan(SportPlan sportPlan) {
-        return 0;
+        int count = jdbcTemplate.update("UPDATE sportplan t set watchTime=?,finishStatus=1 where t.id=?",new Object[]{sportPlan.getWatchTime(),sportPlan.getId()});
+        return count;
     }
 
     @Override
@@ -45,4 +46,12 @@ public class SportPlanDaoImpl implements SportPlanDao {
         int size = list.size();
         return list.get(0);
     }
+
+    @Override
+    public int updateSportPlanWatchTime(SportPlan sportPlan) {
+        int count = jdbcTemplate.update("UPDATE sportplan t set watchTime=? where t.id=?",new Object[]{sportPlan.getWatchTime(),sportPlan.getId()});
+        return count;
+    }
+
+
 }

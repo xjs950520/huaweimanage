@@ -10,4 +10,5 @@ public interface SportPlanService {
     List<SportPlan> getSportPlans(SportPlan sportPlan);
     int deleteSportPlanByUserIdAndDate(SportPlan sportPlan);
     SportPlan getSportPlanById(int id);
+    int updateSportPlanWatchTime(SportPlan sportPlan);
 }

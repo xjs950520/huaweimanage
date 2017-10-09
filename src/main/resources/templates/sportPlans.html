@@ -36,78 +36,64 @@
     <script type="text/javascript">
         $(function(){
             var myPlayer = videojs('my-video');
+            var watchTime2 = $("#watchTime").html();
+            var finishStatus = $("#finishStatus").html();
+            myPlayer.currentTime(watchTime2);//设置播放进度
             myPlayer.on("pause", function(){
+                var nowVideoId = $("#nowVideoId").html();
+                var watchTime = myPlayer.currentTime();//获取当前播放进度
                 if(myPlayer.currentTime()==myPlayer.duration()){
                     $("div[role='slider']").css("display","block");
-                };
-                var currentTime = myPlayer.currentTime;//获取播放进度
+                    if(finishStatus==0){
+                        $.ajax({
+                            type : "POST",
+                            url : "/sportPlanController/updateSportPlanFinishStatus",
+                            data :{"id":nowVideoId,"watchTime":watchTime},
+                            success : function(data) {
+                                window.location.href="/sportPlanController/getSportPlans"
+                            }
+                        });
+                    }
 
-                /*$.ajax(function(){
+                }else{
+                    $.ajax({
+                        type : "POST",
+                        url : "/sportPlanController/updateSportPlanWatchTime",
+                        data :{"id":nowVideoId ,"watchTime":watchTime},
+                        success : function(data) {
 
-                });*/
+                        }
+                    });
+                }
             });
             myPlayer.on("firstplay", function(){
-                $("div[role='slider']").css("display","none");
-                myPlayer.currentTime(20);//设置播放进度
+                if(finishStatus=="1"){
+                    $("div[role='slider']").css("display","block");
+                }else{
+                    $("div[role='slider']").css("display","none");
+                }
             });
+
             $(".li").each(function(){
                 $(this).click(function(){
-                    var id = $(this).find("span").eq(11).html();
-//                    $("#v").prop("src",content);
-//                    $("#name").html($(this).find("span").eq(2).html());
+                    var id = $(this).find("span").eq(7).html();
                     window.location.href="/sportPlanController/getSportPlans?id="+id;
                 });
             });
-            /*myPlayer.on("seeked", function(){
-            alert("dfdf");
-            return false;
-
-
-        });
-        myPlayer.on("seeking", function(){
-
-            return false;
-
-
-        });*/
-
-
-            /*$("button[title='Fullscreen']").toggle(
-                function(){
-                    myPlayer.width(window.innerWidth);
-                    myPlayer.height(window.innerHeight);
-                },
-                function () {
-                    myPlayer.width(640);
-                    myPlayer.height(264);
-                }
-            );*/
         });
     </script>
 </head>
 <body style="background-color: black;">
     <!--https://edge.flowplayer.org/bauhaus.mp4 640 240-->
-    <div style="background-color: #2b2b2b;line-height: 50px;color: gainsboro;" id="name" th:text="${sportSortName}"></div>
-    <div class="m" style="width:100%;border:1px solid blue;">
-        <video id="my-video" class="video-js vjs-big-play-centered" controls="auto" width="800" height="424" style="border:1px solid red;background-color:white;margin-left:auto;margin-right: auto;"
+    <div style="background-color: #2b2b2b;line-height: 50px;color: gainsboro;padding-left:16px;" id="name" th:text="${sportSortName}"></div>
+    <div class="m" style="width:100%;border:1px solid blue;background-color: white;">
+        <video id="my-video" class="video-js vjs-big-play-centered" controls="auto" width="800" height="424" style="border:1px solid red;background-color:black;margin-left:auto;margin-right: auto;"
                poster="MY_VIDEO_POSTER.jpg" data-setup="{}">
             <source th:src="${url}" type="video/mp4" id="v"/>
             <source src="http://vjs.zencdn.net/v/oceans.webm" type="video/webm"/>
             <source src="http://vjs.zencdn.net/v/oceans.ogv" type="video/ogg"/>
-            <!--<p class="vjs-no-js">
-              To view this video please enable JavaScript, and consider upgrading to a web browser that
-              <a href="http://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
-            </p>-->
         </video>
-        <!--<script type="text/javascript">
-            var myPlayer = videojs('my-video');
-            myPlayer.ready(function(){
-                var myPlayer = this;
-                myPlayer.play();
-                myPlayer.pause();
-                myPlayer.enterFullScreen();
-            });
-        </script>-->
+
     </div>
     <div>
         <ul style="color: gainsboro;">
@@ -116,16 +102,15 @@
                 <span>、</span>
                 <span th:text="${sportPlan.sportSortName}"></span>
                 <span th:text="${sportPlan.url}"></span>
-                <span><img src="/img/wrong.png" class="img" style="width: 25;height: 23"/></span>
-                <span><img src="/img/right_hui.png" style="width: 25;height: 23"/></span>
-                <span th:text="${sportPlan.watchTime}"></span><!--上一次的观看进度-->
-                <span th:text="${sportPlan.finishStatus}"></span>
-                <span th:text="${sportPlan.userId}"></span>
-                <span th:text="${sportPlan.sportSortId}"></span>
-                <span th:text="${sportPlan.planDate}"></span>
-                <span th:text="${sportPlan.id}"></span>
+                <span style="width: 25px;height: 23px;display: inline-block;"><img th:if="${sportPlan.finishStatus==0}" src="/img/wrong.png" class="img"/></span>
+                <span><img  th:if="${sportPlan.finishStatus==0}" src="/img/right_hui.png" style="width: 25;height: 23;"/></span>
+                <span><img  th:if="${sportPlan.finishStatus==1}" src="/img/right_blue.png" style="width: 25;height: 23;"/></span>
+                <span th:text="${sportPlan.id}" style="display: none;"></span>
             </li>
         </ul>
     </div>
+    <div id="nowVideoId" style="border:1px solid red;display: none;" th:text="${sportPlanId}"></div>
+    <div id="watchTime" th:text="${watchTime}" style="display: none;"></div>
+    <div id="finishStatus" th:text="${finishStatus}" style="display: none;"></div>
 </body>
 </html>

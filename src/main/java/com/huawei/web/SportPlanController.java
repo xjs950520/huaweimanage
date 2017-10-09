@@ -9,6 +9,7 @@ import com.huawei.service.SportSortService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -28,7 +29,7 @@ public class SportPlanController {
     @RequestMapping(value = "/getSportPlans")
     public String getSportPlans(HttpServletRequest request){
         String id = request.getParameter("id");
-        if(id != null){
+        if(id != null && !id.equals("")){
             SportPlan sportPlan1 = sportPlanService.getSportPlanById(Integer.valueOf(id));
             int sportSortId1 = sportPlan1.getSportSortId();
             SportSort sportSort1 = sportSortService.getSportSortBySportId(sportSortId1);
@@ -36,8 +37,21 @@ public class SportPlanController {
             String url = sportSort1.getSportUrl();
             request.setAttribute("url",url);
             request.setAttribute("sportSortName",sportSortName1);
+            request.setAttribute("sportPlanId",id);
+            request.setAttribute("watchTime",sportPlan1.getWatchTime());
+            request.setAttribute("finishStatus",sportPlan1.getFinishStatus());
         }
-        int userId = Integer.valueOf(String.valueOf(request.getSession().getAttribute("userId")));
+        int userId=0;
+        if(request.getSession().getAttribute("userId")!=null){
+            userId = Integer.valueOf(String.valueOf(request.getSession().getAttribute("userId")));
+        }
+
+        //链接访问入口
+        if(request.getParameter("userId")!=null){
+            userId = Integer.valueOf(request.getParameter("userId"));
+            request.getSession().setAttribute("userId",userId);
+        }
+
         String date = request.getParameter("date");
         if(date!=null){
             request.getSession().setAttribute("date",date);
@@ -59,8 +73,64 @@ public class SportPlanController {
             s.setUrl(sportSort.getSportUrl());
             i++;
         }
+        if(id == null || id.equals("")){
+            request.setAttribute("url",sportPlans.get(0).getUrl());
+            request.setAttribute("sportSortName",sportPlans.get(0).getSportSortName());
+            request.setAttribute("sportPlanId",sportPlans.get(0).getId());
+            request.setAttribute("watchTime",sportPlans.get(0).getWatchTime());
+            request.setAttribute("finishStatus",sportPlans.get(0).getFinishStatus());
+        }
         request.setAttribute("sportPlans",sportPlans);
         return "sportPlans";
+    }
+    @RequestMapping(value = "/updateSportPlanFinishStatus")
+    @ResponseBody
+    public String updateSportPlanFinishStatus(HttpServletRequest request){
+        int id = Integer.valueOf(request.getParameter("id"));
+        String watchTime = request.getParameter("watchTime");
+        SportPlan sportPlan = new SportPlan();
+        sportPlan.setId(id);
+        sportPlan.setWatchTime(watchTime);
+        String result="false";
+        int count = sportPlanService.updateSportPlan(sportPlan);
+
+        //修改运动状况的完成情况
+        sportPlan = sportPlanService.getSportPlanById(id);
+        int userId = sportPlan.getUserId();
+        String addDate = sportPlan.getPlanDate();
+        SportCondition sportCondition = new SportCondition();
+        sportCondition.setUserId(userId);
+        sportCondition.setAddDate(addDate);
+        sportCondition = sportConditionService.getSportCondition(sportCondition);
+        int num = sportCondition.getNum();
+        String finish_status = sportCondition.getFinish_status();
+        int finish_status1 = Integer.valueOf(finish_status);
+        if(num>finish_status1){
+            finish_status1++;
+            finish_status = String.valueOf(finish_status1);
+            sportCondition.setFinish_status(finish_status);
+            sportConditionService.updateFinishStatus(sportCondition);
+        }
+
+        if(count>0){
+            result = "true";
+        }
+        return result;
+    }
+    @RequestMapping(value = "/updateSportPlanWatchTime")
+    @ResponseBody
+    public String updateSportPlanWatchTime(HttpServletRequest request){
+        int id = Integer.valueOf(request.getParameter("id"));
+        String watchTime = request.getParameter("watchTime");
+        SportPlan sportPlan = new SportPlan();
+        sportPlan.setId(id);
+        sportPlan.setWatchTime(watchTime);
+        String result="false";
+        int count = sportPlanService.updateSportPlanWatchTime(sportPlan);
+        if(count>0){
+            result = "true";
+        }
+        return result;
     }
 
 }

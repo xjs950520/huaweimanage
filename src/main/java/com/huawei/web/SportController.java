@@ -59,6 +59,17 @@ public class SportController {
             for(int i=beginIndex;i<endIndex;i++){
                 sportConditions.add(bigList.get(i));
             }
+            String scale=null;
+            for(SportCondition sportCondition:sportConditions){
+                scale="0";
+                if(!sportCondition.getFinish_status().equals("0")){
+                    scale = sportCondition.getFinish_status()+"/"+sportCondition.getNum();
+                    if(sportCondition.getFinish_status().equals(String.valueOf(sportCondition.getNum()))){
+                        scale = "1";
+                    }
+                }
+                sportCondition.setScale(scale);
+            }
             request.getSession().setAttribute("list",sportConditions);
             int totalPage=0;
             double j = (double)count/pageSize;//计算共有多少页
@@ -89,7 +100,7 @@ public class SportController {
         String result="false";
         int userId =Integer.valueOf(String.valueOf(request.getSession().getAttribute("userId")));//得到添加的视频拥有者
         SportSort sportSort = null;
-        int projectNum=arr.length;//项目数量
+        int projectNum=arr.length-1;//项目数量
         String time = arr[0];//获得运动计划的添加时间
         SportPlan sportPlan = null;
         for(int i=1;i<arr.length;i++){
@@ -112,7 +123,7 @@ public class SportController {
             SportCondition sportCondition = new SportCondition();
             sportCondition.setUserId(userId);
             sportCondition.setAddDate(time);
-            String url="http://www.baidu.com";//本地
+            String url="http://localhost:8080/sportPlanController/getSportPlans?userId="+userId+"&date="+time;//本地
 //        String url=""//服务器
             sportCondition.setUrl(url);
             sportCondition.setNum(projectNum);

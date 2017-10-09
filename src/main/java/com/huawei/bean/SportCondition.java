@@ -9,6 +9,7 @@ public class SportCondition {
     private int num;
     private String finish_status;
     private int status;
+    private String scale;
 
     public SportCondition() {
     }
@@ -67,5 +68,13 @@ public class SportCondition {
 
     public void setNum(int num) {
         this.num = num;
+    }
+
+    public String getScale() {
+        return scale;
+    }
+
+    public void setScale(String scale) {
+        this.scale = scale;
     }
 }

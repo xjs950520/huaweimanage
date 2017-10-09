@@ -257,7 +257,7 @@
                 <td th:text="${sportCondition.addDate}"></td>
                 <td th:text="${sportCondition.url}"></td>
                 <td th:text="${sportCondition.num}"></td>
-                <td th:text="${sportCondition.finish_status}"></td>
+                <td th:text="${sportCondition.scale}"></td>
                 <td>
                     <input type="button" value="查看完成状况" class="btn lookFor"/>
                     <input type="button" value="删除" class="btn del"/>
@@ -317,7 +317,7 @@
             </table>
 
         </form>
-        <div id="sport_sort" style="text-align: center;width: 250px;"></div>
+        <div id="sport_sort" style="padding-left:80px;width: 170px;"></div>
         <div style="margin-bottom: 20px;margin-top: 40px;">
             <span style="display: inline-block;width: 45%;text-align: center;"><input type="button" value="添加" style="width: 80px;" class="btn" id="addSportPlan"/></span>
             <span style="display: inline-block;width: 45%;text-align: center;"><input type="button" value="取消" style="width: 80px;" class="btn" onclick="remove()"/></span>

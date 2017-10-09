@@ -32,4 +32,14 @@ public class SportConditionServiceImpl implements SportConditionService {
     public int deleteSportConditionById(int id) {
         return sportConditionDao.deleteSportConditionById(id);
     }
+
+    @Override
+    public int updateFinishStatus(SportCondition sportCondition) {
+        return sportConditionDao.updateFinishStatus(sportCondition);
+    }
+
+    @Override
+    public SportCondition getSportCondition(SportCondition sportCondition) {
+        return sportConditionDao.getSportCondition(sportCondition);
+    }
 }

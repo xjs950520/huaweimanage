@@ -9,4 +9,6 @@ public interface SportConditionService {
     int add(SportCondition sportCondition);
     List<SportCondition> getSportConditionsByUserId(int userId);
     int deleteSportConditionById(int id);
+    int updateFinishStatus(SportCondition sportCondition);
+    SportCondition getSportCondition(SportCondition sportCondition);
 }

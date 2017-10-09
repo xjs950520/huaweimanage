@@ -42,4 +42,17 @@ public class SportConditionDaoImpl implements SportConditionDao {
         int count = jdbcTemplate.update("UPDATE tb_sportCondition t set t.status=1 where t.Id=?",new Object[]{id});
         return count;
     }
+
+    @Override
+    public int updateFinishStatus(SportCondition sportCondition) {
+        int count = jdbcTemplate.update("UPDATE tb_sportCondition t set t.finish_status=? where t.userId=? and t.addDate=?",new Object[]{sportCondition.getFinish_status(),sportCondition.getUserId(),sportCondition.getAddDate()});
+        return count;
+    }
+
+    @Override
+    public SportCondition getSportCondition(SportCondition sportCondition) {
+        List<SportCondition> list = jdbcTemplate.query("SELECT * from tb_sportCondition t where t.userId=? and t.addDate=?",new Object[]{sportCondition.getUserId(),sportCondition.getAddDate()},new BeanPropertyRowMapper<>(SportCondition.class));
+        int size = list.size();
+        return list.get(0);
+    }
 }

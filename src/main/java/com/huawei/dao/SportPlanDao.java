@@ -11,4 +11,5 @@ public interface SportPlanDao {
     List<SportPlan> getSportPlans(SportPlan sportPlan);
     int deleteSportPlanByUserIdAndDate(SportPlan sportPlan);
     SportPlan getSportPlanById(int id);
+    int updateSportPlanWatchTime(SportPlan sportPlan);
 }

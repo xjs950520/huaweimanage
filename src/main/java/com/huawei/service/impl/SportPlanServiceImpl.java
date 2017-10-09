@@ -21,7 +21,7 @@ public class SportPlanServiceImpl implements SportPlanService {
 
     @Override
     public int updateSportPlan(SportPlan sportPlan) {
-        return 0;
+        return sportPlanDao.updateSportPlan(sportPlan);
     }
 
     @Override
@@ -37,5 +37,10 @@ public class SportPlanServiceImpl implements SportPlanService {
     @Override
     public SportPlan getSportPlanById(int id) {
         return sportPlanDao.getSportPlanById(id);
+    }
+
+    @Override
+    public int updateSportPlanWatchTime(SportPlan sportPlan) {
+        return sportPlanDao.updateSportPlanWatchTime(sportPlan);
     }
 }
