@@ -1,3 +1,14 @@
+#spring:
+#  datasource:
+#    driver-class-name: com.mysql.jdbc.Driver
+#    url: jdbc:mysql://rm-bp1ns2vpiih5i62nao.mysql.rds.aliyuncs.com:3306/db_huawei
+#    username: uhealth
+#    password: Uhealth1@3456
+#  mvc:
+#    view:
+#      prefix:  classpath:/templates
+#server:
+#  port: 8082
 spring:
   datasource:
     driver-class-name: com.mysql.jdbc.Driver

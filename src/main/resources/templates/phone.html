@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>运动项目</title>
+    <script src="/js/jquery-1.7.2.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <!-- 弹窗组件-->
+
+    <script src="/js/zDrag.js"></script>
+    <script src="/js/zDialog.js"></script>
+    <script src="/js/jquery.tips.js"></script>
+
+    <script src="/js/jquery-ui.js"></script>
+    <script src="/js/bootbox.min.js"></script>
+    <!--视频插件video-->
+    <script src="/js/videojs-ie8.min.js"></script>
+    <script src="/js/video.min.js"></script>
+    <link href="/css/video-js.css" rel="stylesheet"/>
+
+    <link rel="stylesheet" href="/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="/css/bootstrap-responsive.min.css"/>
+    <link rel="stylesheet" href="/css/bootstrap-theme.css"/>
+
+    <link rel="stylesheet" href="/css/jquery-ui.css"/>
+    <link rel="stylesheet" href="/css/jquery-ui.structure.css"/>
+    <link rel="stylesheet" href="/css/jquery-ui.theme.css"/>
+
+    <link rel="stylesheet" href="//g.alicdn.com/de/prismplayer/2.0.1/skins/default/aliplayer-min.css" />
+    <script type="text/javascript" src="//g.alicdn.com/de/prismplayer/2.0.1/aliplayer-h5-min.js"></script>
+    <style type="text/css">
+        body{
+            margin: 0;
+            padding: 0;
+            background-color: lightslategrey;
+        }
+    </style>
+    <script type="text/javascript">
+        $(function(){
+            var player = new Aliplayer({
+                id: 'J_prismPlayer',
+                width: '100%',
+                autoplay: false,
+                //支持播放地址播放,此播放优先级最高
+                source : 'https://edge.flowplayer.org/bauhaus.mp4',
+                //播放方式二：推荐
+//                vid : '1e067a2831b641db90d570b6480fbc40',
+ //               playauth : '',
+                cover: 'http://liveroom-img.oss-cn-qingdao.aliyuncs.com/logo.png',
+     //           useH5Prism:true,
+                x5_video_position:'top',
+                playsinline:true,
+                x5_type:'h5'
+            });
+//            player.currentTime(20);
+            player.seek(20);
+            player.on("requestFullScreen",function(){
+                player.cancelFullScreen();
+            });
+            player.on("pause",function(){<!--暂停事件触发-->
+                //player.seek(35);
+            });
+           player.on("play",function(){
+//               player.pause();
+//              this.seek(35);
+           });
+//           $(".prism-play-btn").click(function(){
+//               player.seek(30);
+//           });
+           $(".prism-progress").css({"display":"none"});
+            player.on("ended",function(){<!-- 播放完毕触发事件 -->
+                $(".prism-progress").css({"display":"block"});
+                $("img[src='/img/未播放完毕项目@2x.png']").css("display","none");
+            });
+            $(".prism-fullscreen-btn").css({"display":"none"});
+
+        });
+    </script>
+</head>
+<body>
+    <!--<div class="m" style="width:100%;background-color: white;">
+        <video id="my-video" class="video-js vjs-big-play-centered" controls="auto" width="100%" height="424" style="margin-left:auto;margin-right: auto;border: 1px solid red;">
+            <source src="https://vjs.zencdn.net/v/oceans.mp4" type="video/mp4" id="v"/>
+            <source src="http://vjs.zencdn.net/v/oceans.webm" type="video/webm"/>
+            <source src="http://vjs.zencdn.net/v/oceans.ogv" type="video/ogg"/>
+        </video>
+
+    </div>-->
+    <div  class="prism-player" id="J_prismPlayer" style="width:100%;"></div>
+    <div style="background-color: white;font-size: 26px;line-height: 53px;">
+        <span>飞鸟</span>
+        <span style="position: absolute;right: 0px;"><img src="/img/未播放完毕项目@2x.png"/><img src="/img/未完成项目@2x.png"/></span>
+    </div>
+</body>
+</html>

@@ -2,6 +2,7 @@
 <html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <title>运动项目</title>
     <script src="/js/jquery-1.7.2.js"></script>
     <script src="/js/bootstrap.min.js"></script>
@@ -32,16 +33,23 @@
         ul li:hover{
             cursor: pointer;
         }
+        body{
+            marging:0px;
+            padding:0px;
+        }
     </style>
     <script type="text/javascript">
         $(function(){
+
             var myPlayer = videojs('my-video');
             var watchTime2 = $("#watchTime").html();
             var finishStatus = $("#finishStatus").html();
             myPlayer.currentTime(watchTime2);//设置播放进度
+
             myPlayer.on("pause", function(){
                 var nowVideoId = $("#nowVideoId").html();
                 var watchTime = myPlayer.currentTime();//获取当前播放进度
+                alert("pause");
                 if(myPlayer.currentTime()==myPlayer.duration()){
                     $("div[role='slider']").css("display","block");
                     if(finishStatus==0){
@@ -86,8 +94,8 @@
 <body style="background-color: black;">
     <!--https://edge.flowplayer.org/bauhaus.mp4 640 240-->
     <div style="background-color: #2b2b2b;line-height: 50px;color: gainsboro;padding-left:16px;" id="name" th:text="${sportSortName}"></div>
-    <div class="m" style="width:100%;border:1px solid blue;background-color: white;">
-        <video id="my-video" class="video-js vjs-big-play-centered" controls="auto" width="800" height="424" style="border:1px solid red;background-color:black;margin-left:auto;margin-right: auto;"
+    <div class="m" style="width:100%;background-color: white;">
+        <video id="my-video" class="video-js vjs-big-play-centered" controls="auto" width="800" height="424" style="border: 1px solid gainsboro; background-color:black;margin-left:auto;margin-right: auto;"
                poster="MY_VIDEO_POSTER.jpg" data-setup="{}">
             <source th:src="${url}" type="video/mp4" id="v"/>
             <source src="http://vjs.zencdn.net/v/oceans.webm" type="video/webm"/>
@@ -100,8 +108,8 @@
             <li th:each="sportPlan:${sportPlans}" class="li">
                 <span th:text="${sportPlan.number}"></span>
                 <span>、</span>
-                <span th:text="${sportPlan.sportSortName}"></span>
-                <span th:text="${sportPlan.url}"></span>
+                <span th:text="${sportPlan.sportSortName}" style="display: inline-block;width:200px;"></span>
+                <span th:text="${sportPlan.url}" style="display: none;"></span>
                 <span style="width: 25px;height: 23px;display: inline-block;"><img th:if="${sportPlan.finishStatus==0}" src="/img/wrong.png" class="img"/></span>
                 <span><img  th:if="${sportPlan.finishStatus==0}" src="/img/right_hui.png" style="width: 25;height: 23;"/></span>
                 <span><img  th:if="${sportPlan.finishStatus==1}" src="/img/right_blue.png" style="width: 25;height: 23;"/></span>

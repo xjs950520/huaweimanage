@@ -12,12 +12,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Controller
 @RequestMapping(value = "/sportController")
 public class SportController {
+
+    private final SimpleDateFormat sdf=new SimpleDateFormat("yyyy.MM.dd_HH:mm");
 
     @Autowired
     private SportSortService sportSortService;
@@ -123,8 +127,11 @@ public class SportController {
             SportCondition sportCondition = new SportCondition();
             sportCondition.setUserId(userId);
             sportCondition.setAddDate(time);
-            String url="http://localhost:8080/sportPlanController/getSportPlans?userId="+userId+"&date="+time;//本地
-//        String url=""//服务器
+            int position = time.indexOf(" ");
+           String timeMark = time.substring(0,position)+"_"+time.substring(position+1,time.length());
+            System.out.println(timeMark);
+           String url="http://localhost:8080/sportPlanController/getSportPlans?userId="+userId+"&date="+timeMark;//本地
+//            String url="http://www.uhealth-online.com.cn:8082/sportPlanController/getSportPlans?userId="+userId+"&date="+time;//服务器
             sportCondition.setUrl(url);
             sportCondition.setNum(projectNum);
             int count = sportConditionService.add(sportCondition);

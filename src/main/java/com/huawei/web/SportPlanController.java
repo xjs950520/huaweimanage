@@ -54,6 +54,12 @@ public class SportPlanController {
 
         String date = request.getParameter("date");
         if(date!=null){
+            //request.getSession().setAttribute("date",date);
+            int position = date.indexOf("_");
+           String date1=date.substring(0,position);
+           String date2=date.substring(position+1,date.length());
+
+            date = date1+" "+date2;
             request.getSession().setAttribute("date",date);
         }else{
             date = String.valueOf(request.getSession().getAttribute("date"));
@@ -131,6 +137,10 @@ public class SportPlanController {
             result = "true";
         }
         return result;
+    }
+    @RequestMapping(value = "/phone")
+    public String phone(){
+        return "phone";
     }
 
 }
