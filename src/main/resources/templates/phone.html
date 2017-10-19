@@ -33,50 +33,130 @@
         body{
             margin: 0;
             padding: 0;
-            background-color: lightslategrey;
+
+        }
+        ul{
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        li{
+            margin-bottom: 2px;
+            background-color: white;
+            font-size: 26px;
+            line-height: 53px;
         }
     </style>
     <script type="text/javascript">
         $(function(){
+            var url=$("#url").html();
+
+            var watchTime2 = $("#watchTime").html();
+            var finishStatus = $("#finishStatus").html();
             var player = new Aliplayer({
                 id: 'J_prismPlayer',
                 width: '100%',
+                height:'200px',
                 autoplay: false,
+                useH5Prism:true,
                 //支持播放地址播放,此播放优先级最高
-                source : 'https://edge.flowplayer.org/bauhaus.mp4',
+                source : url,
                 //播放方式二：推荐
 //                vid : '1e067a2831b641db90d570b6480fbc40',
  //               playauth : '',
                 cover: 'http://liveroom-img.oss-cn-qingdao.aliyuncs.com/logo.png',
-     //           useH5Prism:true,
-                x5_video_position:'top',
-                playsinline:true,
-                x5_type:'h5'
+                x5_type:'h5',
+                preload:true,
+                x5_fullscreen:false,
+                x5_video_position:'top'
+
+              // useH5Prism:true,
+               //x5_orientation:1,
+               // x5_type:'h5',
+             //  x5_video_position:'center'
+             //   controlBarVisibility:'hover'
+
             });
 //            player.currentTime(20);
-            player.seek(20);
-            player.on("requestFullScreen",function(){
-                player.cancelFullScreen();
+           player.on("requestFullScreen",function(){
+               player.cancelFullScreen();
             });
+           var mark = 1;
             player.on("pause",function(){<!--暂停事件触发-->
+               mark = 2;
                 //player.seek(35);
             });
+
            player.on("play",function(){
+               if(mark==1){
+
+                   setTimeout(function(){player.seek(watchTime2)},1000);
+               }
 //               player.pause();
- //              setTimeout(function(){player.seek(35)},1000);
+             //  setTimeout(function(){player.seek(watchTime2)},1000);
 
            });
 //           $(".prism-play-btn").click(function(){
 //               player.seek(30);
 //           });
            $(".prism-progress").css({"display":"none"});
-            player.on("ended",function(){<!-- 播放完毕触发事件 -->
-                $(".prism-progress").css({"display":"block"});
-                $("img[src='/img/未播放完毕项目@2x.png']").css("display","none");
-            });
+//            player.on("ended",function(){<!-- 播放完毕触发事件 -->
+//                $(".prism-progress").css({"display":"block"});
+//                $("img[src='/img/未播放完毕项目@2x.png']").css("display","none");
+//            });
             $(".prism-fullscreen-btn").css({"display":"none"});
 
+
+
+
+            if(finishStatus == 0){
+                $(".prism-progress").css({"display":"none"});
+            }
+            if(finishStatus == 1){
+                $(".prism-progress").css({"display":"block"});
+            }
+            player.on("ended",function(){<!-- 播放完毕触发事件 -->
+                $(".prism-progress").css({"display":"block"});
+
+            });
+            player.on("pause", function(){
+                var nowVideoId = $("#nowVideoId").html();
+                var watchTime = player.getCurrentTime();//获取当前播放进度
+                if(player.getCurrentTime()==player.getDuration()){
+                    $(".prism-progress").css("display","block");
+                    if(finishStatus==0){
+                        $.ajax({
+                            type : "POST",
+                            url : "/sportPlanController/updateSportPlanFinishStatus",
+                            data :{"id":nowVideoId,"watchTime":watchTime},
+                            success : function(data) {
+                                window.location.href="/sportPlanController/getSportPlans"
+                            }
+                        });
+                    }
+
+                }else{
+                    $.ajax({
+                        type : "POST",
+                        url : "/sportPlanController/updateSportPlanWatchTime",
+                        data :{"id":nowVideoId ,"watchTime":watchTime},
+                        success : function(data) {
+
+                        }
+                    });
+                }
+            });
+
+            $(".li").each(function(){
+
+                $(this).click(function(){
+                   alert("click");
+                   var id = $(this).find("span").eq(7).html();
+                   window.location.href="/sportPlanController/getSportPlans?id="+id;
+                });
+            });
         });
+
     </script>
 </head>
 <body>
@@ -88,10 +168,42 @@
         </video>
 
     </div>-->
-    <div  class="prism-player" id="J_prismPlayer" style="width:100%;"></div>
-    <div style="background-color: white;font-size: 26px;line-height: 53px;">
-        <span>飞鸟</span>
-        <span style="position: absolute;right: 0px;"><img src="/img/未播放完毕项目@2x.png"/><img src="/img/未完成项目@2x.png"/></span>
+
+    <div  class="prism-player" id="J_prismPlayer" style="width:100%;">
+        <div>
+            <ul style="color: gainsboro;">
+                <li th:each="sportPlan:${sportPlans}" class="li">
+                    <span th:text="${sportPlan.number}" style="display: none;"></span>
+                    <span>、</span>
+                    <span th:text="${sportPlan.sportSortName}"></span>
+                    <span th:text="${sportPlan.url}" style="display: none;"></span>
+                    <div style="display: inline-block;position: absolute;right: 0px;">
+                        <span style="width: 41px;height: 41px;display: inline-block;"><img th:if="${sportPlan.finishStatus==0}" src="/img/未播放完毕项目@2x.png" class="img"/></span>
+                        <span><img  th:if="${sportPlan.finishStatus==0}" src="/img/未完成项目@2x.png"/></span>
+                        <span><img  th:if="${sportPlan.finishStatus==1}" src="/img/已完成项目@2x.png"/></span>
+                        <span th:text="${sportPlan.id}" style="display: none;"></span>
+                    </div>
+
+                </li>
+            </ul>
+        </div>
     </div>
+    <!--<div style="background-color: white;font-size: 26px;line-height: 53px;">-->
+        <!--<div>-->
+        <!--<span>飞鸟</span>-->
+        <!--<span style="position: absolute;right: 0px;"><img src="/img/未播放完毕项目@2x.png"/><img src="/img/未完成项目@2x.png"/></span></div>-->
+        <!--<div>-->
+            <!--<span>飞鸟</span>-->
+            <!--<span style="position: absolute;right: 0px;"><img src="/img/未播放完毕项目@2x.png"/><img src="/img/未完成项目@2x.png"/></span></div>-->
+        <!--<div>-->
+            <!--<span>飞鸟</span>-->
+            <!--<span style="position: absolute;right: 0px;"><img src="/img/未播放完毕项目@2x.png"/><img src="/img/未完成项目@2x.png"/></span></div>-->
+    <!--</div>-->
+    <div id="url" th:text="${url}" style="display: none;">
+
+    </div>
+    <div id="nowVideoId" style="display: none;" th:text="${sportPlanId}"></div>
+    <div id="watchTime" th:text="${watchTime}" style="display: none;"></div>
+    <div id="finishStatus" th:text="${finishStatus}" style="display: none;"></div>
 </body>
 </html>

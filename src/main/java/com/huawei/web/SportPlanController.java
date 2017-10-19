@@ -47,9 +47,12 @@ public class SportPlanController {
         }
 
         //链接访问入口
+        String mark=null;
         if(request.getParameter("userId")!=null){
+            mark="mark";
             userId = Integer.valueOf(request.getParameter("userId"));
             request.getSession().setAttribute("userId",userId);
+            request.getSession().setAttribute("m",mark);
         }
 
         String date = request.getParameter("date");
@@ -80,6 +83,7 @@ public class SportPlanController {
             i++;
         }
         if(id == null || id.equals("")){
+            String url = sportPlans.get(0).getUrl();
             request.setAttribute("url",sportPlans.get(0).getUrl());
             request.setAttribute("sportSortName",sportPlans.get(0).getSportSortName());
             request.setAttribute("sportPlanId",sportPlans.get(0).getId());
@@ -87,6 +91,12 @@ public class SportPlanController {
             request.setAttribute("finishStatus",sportPlans.get(0).getFinishStatus());
         }
         request.setAttribute("sportPlans",sportPlans);
+        if(request.getSession().getAttribute("m")!=null){
+            if(String.valueOf(request.getSession().getAttribute("m")).equals("mark")){
+                return "phone";
+            }
+
+        }
         return "sportPlans";
     }
     @RequestMapping(value = "/updateSportPlanFinishStatus")
