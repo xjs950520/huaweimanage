@@ -69,7 +69,7 @@ public class SportController {
                 if(!sportCondition.getFinish_status().equals("0")){
                     scale = sportCondition.getFinish_status()+"/"+sportCondition.getNum();
                     if(sportCondition.getFinish_status().equals(String.valueOf(sportCondition.getNum()))){
-                        scale = "1";
+                        scale = sportCondition.getNum()+"/"+sportCondition.getNum();
                     }
                 }
                 sportCondition.setScale(scale);
@@ -131,7 +131,7 @@ public class SportController {
            String timeMark = time.substring(0,position)+"_"+time.substring(position+1,time.length());
             System.out.println(timeMark);
            String url="http://localhost:8080/sportPlanController/getSportPlans?userId="+userId+"&date="+timeMark;//本地
-//            String url="http://www.uhealth-online.com.cn:8082/sportPlanController/getSportPlans?userId="+userId+"&date="+time;//服务器
+//            String url="http://www.uhealth-online.com.cn:8082/sportPlanController/getSportPlans?userId="+userId+"&date="+timeMark;//服务器
             sportCondition.setUrl(url);
             sportCondition.setNum(projectNum);
             int count = sportConditionService.add(sportCondition);

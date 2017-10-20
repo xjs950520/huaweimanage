@@ -48,25 +48,27 @@ public class SportPlanController {
 
         //链接访问入口
         String mark=null;
-        if(request.getParameter("userId")!=null){
+        String date = request.getParameter("date");
+        if(request.getParameter("userId")!=null && date.indexOf("_")!=-1){
             mark="mark";
             userId = Integer.valueOf(request.getParameter("userId"));
             request.getSession().setAttribute("userId",userId);
             request.getSession().setAttribute("m",mark);
-        }
-
-        String date = request.getParameter("date");
-        if(date!=null){
-            //request.getSession().setAttribute("date",date);
             int position = date.indexOf("_");
-           String date1=date.substring(0,position);
-           String date2=date.substring(position+1,date.length());
+            String date1=date.substring(0,position);
+            String date2=date.substring(position+1,date.length());
 
             date = date1+" "+date2;
             request.getSession().setAttribute("date",date);
-        }else{
-            date = String.valueOf(request.getSession().getAttribute("date"));
         }
+      if(date!=null && date.indexOf("-1")==-1){
+            request.getSession().setAttribute("mark2","mark2");
+            request.getSession().setAttribute("date",date);
+      }
+      if(date==null && request.getSession().getAttribute("mark2")!=null){
+        date = String.valueOf(request.getSession().getAttribute("date"));
+      }
+
 
         SportPlan sportPlan = new SportPlan();
         sportPlan.setUserId(userId);

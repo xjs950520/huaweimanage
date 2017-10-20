@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <title>运动项目</title>
     <script src="/js/jquery-1.7.2.js"></script>
     <script src="/js/bootstrap.min.js"></script>
@@ -46,9 +47,13 @@
             font-size: 26px;
             line-height: 53px;
         }
+
+
+
     </style>
     <script type="text/javascript">
         $(function(){
+            $("body").on("touchmove mousemove",function(e){e.preventDefault();});
             var url=$("#url").html();
 
             var watchTime2 = $("#watchTime").html();
@@ -86,12 +91,19 @@
                mark = 2;
                 //player.seek(35);
             });
-
+            var i=0;
            player.on("play",function(){
+//               i++;
+//               if(i==2){
+//                   $("video").css({"position":"absolute","top":"0px"});
+//                   $("ul").css({"display":"none"});
+//                   player.play();
+//               }
                if(mark==1){
 
                    setTimeout(function(){player.seek(watchTime2)},1000);
                }
+
 //               player.pause();
              //  setTimeout(function(){player.seek(watchTime2)},1000);
 
@@ -150,12 +162,15 @@
             $(".li").each(function(){
 
                 $(this).click(function(){
-                   alert("click");
                    var id = $(this).find("span").eq(7).html();
                    window.location.href="/sportPlanController/getSportPlans?id="+id;
                 });
             });
+
+
         });
+
+
 
     </script>
 </head>
@@ -170,15 +185,17 @@
     </div>-->
 
     <div  class="prism-player" id="J_prismPlayer" style="width:100%;">
-        <div>
-            <ul style="color: gainsboro;">
-                <li th:each="sportPlan:${sportPlans}" class="li">
+
+        <div style="background-color: #e1e1e8;" id="rollBox">
+            <div style="margin-bottom: 20px;background-color:white;color: slategray;"><span th:text="${sportSortName}" style="margin-left: 16px;"></span><span style="position: absolute;right: 15px;">当前播放</span></div>
+            <ul style="background-color: #e1e1e8;">
+                <li th:each="sportPlan:${sportPlans}" class="li" style="margin-bottom: 2px;">
                     <span th:text="${sportPlan.number}" style="display: none;"></span>
-                    <span>、</span>
-                    <span th:text="${sportPlan.sportSortName}"></span>
+                    <span style="display: none;">、</span>
+                    <span th:text="${sportPlan.sportSortName}" style="color: black;margin-left: 16px"></span>
                     <span th:text="${sportPlan.url}" style="display: none;"></span>
                     <div style="display: inline-block;position: absolute;right: 0px;">
-                        <span style="width: 41px;height: 41px;display: inline-block;"><img th:if="${sportPlan.finishStatus==0}" src="/img/未播放完毕项目@2x.png" class="img"/></span>
+                        <span><img th:if="${sportPlan.finishStatus==0}" src="/img/未播放完毕项目@2x.png" class="img"/></span>
                         <span><img  th:if="${sportPlan.finishStatus==0}" src="/img/未完成项目@2x.png"/></span>
                         <span><img  th:if="${sportPlan.finishStatus==1}" src="/img/已完成项目@2x.png"/></span>
                         <span th:text="${sportPlan.id}" style="display: none;"></span>
